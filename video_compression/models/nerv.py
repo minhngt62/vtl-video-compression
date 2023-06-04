@@ -2,19 +2,13 @@ import os
 import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
-    
-class MLP(nn.Module):
-    def __init__(self, fc_dims, bias=True):
-        super().__init__()
 
-        fcs = []
-        for i in range(len(fc_dims)-1):
-            fcs += [nn.Linear(fc_dims[i], fc_dims[i+1], bias=bias), 
-                    nn.GELU()]
-        self.net = nn.ModuleList(fcs)
-    
-    def forward(self, x):
-        return self.net(x)
+def mlp(fc_dims, bias=True):
+    fcs = []
+    for i in range(len(fc_dims)-1):
+        fcs += [nn.Linear(fc_dims[i], fc_dims[i+1], bias=bias), 
+                nn.GELU()]
+    return nn.Sequential(*fcs)
 
 class NervBlock(nn.Module):
     def __init__(
@@ -55,7 +49,7 @@ class Nerv(nn.Module):
         stem_dim, stem_num = [int(x) for x in stem_dim_num.split('_')]
         self.fc_h, self.fc_w, self.fc_dim = [int(x) for x in fc_hw_dim.split('_')]
         mlp_dim_list = [embed_length] + [stem_dim] * stem_num + [self.fc_h *self.fc_w *self.fc_dim]
-        self.stem = MLP(fc_dims=mlp_dim_list)
+        self.stem = mlp(fc_dims=mlp_dim_list)
 
         self.layers, self.head_layers = [nn.ModuleList() for _ in range(2)]
         ngf = self.fc_dim
