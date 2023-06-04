@@ -91,28 +91,6 @@ def all_reduce(tensors, average=True):
     return tensors
 
 
-class PositionalEncoding(nn.Module):
-    def __init__(self, pe_embed):
-        super(PositionalEncoding, self).__init__()
-        self.pe_embed = pe_embed.lower()
-        if self.pe_embed == 'none':
-            self.embed_length = 1
-        else:
-            self.lbase, self.levels = [float(x) for x in pe_embed.split('_')]
-            self.levels = int(self.levels)
-            self.embed_length = 2 * self.levels
-
-    def forward(self, pos):
-        if self.pe_embed == 'none':
-            return pos[:,None]
-        else:
-            pe_list = []
-            for i in range(self.levels):
-                temp_value = pos * self.lbase **(i) * math.pi
-                pe_list += [torch.sin(temp_value), torch.cos(temp_value)]
-            return torch.stack(pe_list, 1)
-
-
 def psnr2(img1, img2):
     mse = (img1 - img2) ** 2
     PIXEL_MAX = 1
@@ -219,19 +197,3 @@ def worker_init_fn(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
     return
-
-class PositionalEncodingTrans(nn.Module):
-    def __init__(self, d_model, max_len):
-        super().__init__()
-        self.max_len = max_len
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        self.register_buffer('pe', pe)
-
-    def forward(self, pos):
-        index = torch.round(pos * self.max_len).long()
-        p = self.pe[index]
-        return p

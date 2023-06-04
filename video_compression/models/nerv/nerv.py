@@ -1,6 +1,28 @@
 import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
+import math
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, pe_embed):
+        super(PositionalEncoding, self).__init__()
+        self.pe_embed = pe_embed.lower()
+        if self.pe_embed == 'none':
+            self.embed_length = 1
+        else:
+            self.lbase, self.levels = [float(x) for x in pe_embed.split('_')]
+            self.levels = int(self.levels)
+            self.embed_length = 2 * self.levels
+
+    def forward(self, pos):
+        if self.pe_embed == 'none':
+            return pos[:,None]
+        else:
+            pe_list = []
+            for i in range(self.levels):
+                temp_value = pos * self.lbase **(i) * math.pi
+                pe_list += [torch.sin(temp_value), torch.cos(temp_value)]
+            return torch.stack(pe_list, 1)
 
 def mlp(fc_dims, bias=True):
     fcs = []
