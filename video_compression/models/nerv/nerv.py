@@ -90,6 +90,7 @@ class Nerv(nn.Module):
             for j in range(num_blocks):
                 self.layers.append(NervBlock(
                     in_channels=ngf, out_channels=new_ngf, stride=1 if j else stride, bias=bias))
+                ngf = new_ngf
 
             head_layer = [None]
             if sin_res:
