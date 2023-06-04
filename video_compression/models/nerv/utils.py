@@ -220,7 +220,7 @@ def worker_init_fn(worker_id):
     random.seed(worker_seed)
     return
 
-class PositionalEncodingTrans(nn.Module):
+class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len):
         super().__init__()
         self.max_len = max_len
