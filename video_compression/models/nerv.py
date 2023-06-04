@@ -1,4 +1,3 @@
-import os
 import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
@@ -10,6 +9,16 @@ def mlp(fc_dims, bias=True):
                 nn.GELU()]
     return nn.Sequential(*fcs)
 
+class Upsample(nn.Module):
+    def __init__(self, in_channels, out_channels, stride, bias):
+        super().__init__()
+
+        self.conv = nn.Conv2d(in_channels, out_channels * stride**2, 3, 1, 1, bias=bias)
+        self.up_scale = nn.PixelShuffle(stride)
+    
+    def forward(self, x):
+        return self.up_scale(self.conv(x))
+
 class NervBlock(nn.Module):
     def __init__(
         self, 
@@ -20,14 +29,11 @@ class NervBlock(nn.Module):
     ):
         super().__init__()
         
-        self.conv = nn.ModuleList([
-            nn.Conv2d(in_channels, out_channels * stride**2, 3, 1, 1, bias=bias),
-            nn.PixelShuffle(stride)
-        ])
+        self.conv = Upsample(in_channels, out_channels, stride, bias)
         self.act = nn.GELU()
 
     def forward(self, x):
-        return self.act(self.upsample(x))
+        return self.act(self.conv(x))
 
 class Nerv(nn.Module):
     def __init__(
