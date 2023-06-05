@@ -4,6 +4,9 @@ import torch.utils.data as data
 ctx = de.cpu(0)
 de.bridge.set_bridge("torch")
 
+import skvideo.io
+import skvideo.datasets
+
 #@title UVG-HD
 class VideoDataset(data.Dataset):
     def __init__(
@@ -22,3 +25,20 @@ class VideoDataset(data.Dataset):
         frame = self.video.get_batch([idx]).permute(0, 3, 1, 2)
         idx = idx / (len(self.video) / self.frame_gap) # normalize idx
         return torch.Tensor(idx), frame
+
+class BigBuckBunny(data.Dataset):
+    def __init__(
+        self,
+        frame_gap=1
+    ):
+        self.frame_gap = frame_gap
+        self.video = skvideo.io.vread(skvideo.datasets.bigbuckbunny())
+    
+    def __len__(self):
+        return self.video.shape[0] // self.frame_gap
+    
+    def __getitem__(self, idx):
+        idx = idx * self.frame_gap
+        frame = self.video[idx]
+        idx = idx / (len(self.video) / self.frame_gap) # normalize idx
+        return torch.Tensor(idx).float(), torch.Tensor(frame).float().permute(2, 0, 1)
