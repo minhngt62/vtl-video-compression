@@ -7,7 +7,7 @@ de.bridge.set_bridge("torch")
 import skvideo.io
 import skvideo.datasets
 
-#@title UVG-HD
+# Use directly for video files
 class VideoDataset(data.Dataset):
     def __init__(
         self, 
@@ -26,6 +26,7 @@ class VideoDataset(data.Dataset):
         idx = idx / (len(self.video) / self.frame_gap) # normalize idx
         return torch.Tensor(idx), frame
 
+# Use for bigbuckbunny loaded from skvideo
 class BigBuckBunny(data.Dataset):
     def __init__(
         self,
