@@ -15,9 +15,10 @@ class VideoDataset(data.Dataset):
         self.video = de.VideoReader(video_path, ctx=ctx)
     
     def __len__(self):
-        return len(self.video)
+        return len(self.video) // self.frame_gap
     
     def __getitem__(self, idx):
         idx = idx * self.frame_gap
         frame = self.video.get_batch([idx]).permute(0, 3, 1, 2)
+        idx = idx / (len(self.video) / self.frame_gap) # normalize idx
         return torch.Tensor(idx), frame

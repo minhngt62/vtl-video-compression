@@ -104,7 +104,7 @@ class Nerv(nn.Module):
         
         self.sigmoid = sigmoid
     
-    def forward(self, x):
+    def forward(self, x: Tensor):
         x = self.stem(x)
         x = x.view(x.size(0), self.fc_dim, self.fc_h, self.fc_w)
 
