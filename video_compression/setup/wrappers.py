@@ -42,7 +42,7 @@ class LtNerv(L.LightningModule):
         self.model = Nerv(
             stem_dim_num=stem_dim_num,
             fc_hw_dim=fc_hw_dim,
-            embed_length=pe_embed,
+            pe_embed=pe_embed,
             stride_list=stride_list,
             expansion=expansion,
             reduction=reduction,
