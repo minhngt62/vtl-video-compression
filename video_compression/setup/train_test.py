@@ -67,8 +67,7 @@ def train(
     trainer.fit(model, train_loader, val_loader) 
 
     # load the best checkpoint
-    model = model.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
-    return model
+    return trainer.checkpoint_callback.best_model_path
 
 def test(
     model: L.LightningModule,
