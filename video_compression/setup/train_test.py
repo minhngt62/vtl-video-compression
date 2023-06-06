@@ -31,11 +31,9 @@ def train(
     )
 ):  
     prune_at_epochs = sorted([int(i * trainer_params["max_epochs"]) for i in compress_params["prune_at_epochs"]])
-    
     def compute_amount(epoch):
         if len(prune_at_epochs) == 1:
             if epoch == prune_at_epochs[0]:
-                print("PRUNING!")
                 return compress_params["prune_ratio"]
             return 0
         base_prune_ratio = compress_params["prune_ratio"] ** (1 / len(prune_at_epochs))
@@ -45,9 +43,7 @@ def train(
         return 0
     
     def prune_when(epoch):
-        print(f"prune when called at {epoch}")
         if epoch in prune_at_epochs:
-            print("prune when:", epoch)
             return True
         return False
 
