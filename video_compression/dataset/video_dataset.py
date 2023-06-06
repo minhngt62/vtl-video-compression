@@ -24,7 +24,7 @@ class VideoDataset(data.Dataset):
         idx = idx * self.frame_gap
         frame = self.video.get_batch([idx]).permute(0, 3, 1, 2)
         idx = idx / (len(self.video) / self.frame_gap) # normalize idx
-        return torch.Tensor(idx), frame
+        return torch.tensor(idx), frame
 
 # Use for bigbuckbunny loaded from skvideo
 class BigBuckBunny(data.Dataset):
