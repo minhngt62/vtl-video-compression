@@ -66,8 +66,37 @@ def train(
     L.seed_everything(42)
     trainer.fit(model, train_loader, val_loader) 
 
-    # test the model
+    # load the best checkpoint
     model = model.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
-    test_result = trainer.test(model, dataloaders=val_loader, verbose=False)
-    return model, test_result
+    return model
+
+def test(
+    model: L.LightningModule,
+    dataset: data.Dataset,
+    weights: str,
+    trainer_params: Dict[str, Any] = dict(
+        default_root_dir=os.path.join(PRJ_ROOT, "configs", "nerv"),
+        max_epochs=1,
+        log_every_n_steps=5,
+    ),
+    loader_params: Dict[str, Any] = dict(
+        batch_size=1,
+        shuffle=False,
+        num_workers=2,
+        pin_memory=True,
+        drop_last=False,
+    )
+):
+    trainer = L.Trainer(
+        accelerator="auto",
+        devices=1,
+        **trainer_params,
+    )
+    trainer.logger._log_graph = False  # if True, we plot the computation graph in tensorboard
+    trainer.logger._default_hp_metric = None  # optional logging argument that we don't need
+
+    val_loader = data.DataLoader(dataset, **loader_params)
     
+    model = model.load_from_checkpoint(weights)
+    test_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    return test_result
