@@ -4,7 +4,7 @@ import lightning as L
 from dahuffman import HuffmanCodec
 
 from ..models import Nerv
-from .metrics import loss_fn, psnr_fn
+from .metrics import loss_fn, psnr_fn, msssim_fn
 from .compress import quantize_weights
 
 class LtNerv(L.LightningModule):
@@ -29,7 +29,7 @@ class LtNerv(L.LightningModule):
         loss_alpha=0.7,
 
         quant_bit=8,
-        quant_axis=0,     
+        quant_axis=0, 
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -37,7 +37,7 @@ class LtNerv(L.LightningModule):
         self.lr0, self.betas, self.weight_decay = lr0, betas, weight_decay
         self.warmup_epochs = warmup_epochs
         self.loss_alpha = loss_alpha
-        self.quant_bit, self.quant_axis = quant_bit, quant_axis
+        self.prune_ratio, self.quant_bit, self.quant_axis = prune_ratio, quant_bit, quant_axis
 
         self.model = Nerv(
             stem_dim_num=stem_dim_num,
@@ -79,6 +79,10 @@ class LtNerv(L.LightningModule):
         psnr = psnr_fn(pred_frames, frames)
         
         self.log_dict({"%s_loss" % mode: loss, "%s_psnr" % mode: psnr}, prog_bar=True)
+        
+        if mode == "test":
+            msssim = msssim_fn(pred_frames, frames)
+            self.log_dict({"%s_msssim" % mode: msssim}, prog_bar=True)
         return loss, psnr
 
     def _quantize_weights(self):
@@ -86,7 +90,7 @@ class LtNerv(L.LightningModule):
         self.model.load_state_dict(quantized_ckt)
 
     def training_step(self, batch, batch_idx):
-        loss, psnr = self._calculate_loss(batch)
+        loss, psnr, _, _ = self._calculate_loss(batch)
         return {"loss": loss, "psnr": psnr}
 
     def on_validation_epoch_start(self):
@@ -100,3 +104,4 @@ class LtNerv(L.LightningModule):
 
     def test_step(self, batch, batch_idx):
         self._calculate_loss(batch, mode="test")
+
