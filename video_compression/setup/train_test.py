@@ -33,7 +33,6 @@ def train(
     prune_at_epochs = sorted([int(i * trainer_params["max_epochs"]) for i in compress_params["prune_at_epochs"]])
     
     def compute_amount(epoch):
-        prune_at_epochs = copy(prune_at_epochs)
         if len(prune_at_epochs) == 1:
             if epoch == prune_at_epochs[0]:
                 return compress_params["prune_ratio"]
