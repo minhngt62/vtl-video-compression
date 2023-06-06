@@ -23,7 +23,7 @@ def train(
     loader_params: Dict[str, Any] = dict(
         batch_size=1,
         shuffle=False,
-        num_worker=4,
+        num_workers=4,
         pin_memory=True,
         drop_last=False,
     )
