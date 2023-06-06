@@ -42,4 +42,4 @@ class BigBuckBunny(data.Dataset):
         idx = idx * self.frame_gap
         frame = self.video[idx]
         idx = idx / (len(self.video) / self.frame_gap) # normalize idx
-        return torch.Tensor(idx).float(), torch.Tensor(frame).float().permute(2, 0, 1)
+        return torch.tensor(idx), torch.Tensor(frame).float().permute(2, 0, 1)
