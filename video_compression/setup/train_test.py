@@ -19,11 +19,12 @@ def train(
         default_root_dir=os.path.join(PRJ_ROOT, "configs", "nerv"),
         max_epochs=150,
         log_every_n_steps=15,
+        check_val_every_n_epoch=50
     ),
     loader_params: Dict[str, Any] = dict(
         batch_size=1,
         shuffle=False,
-        num_workers=4,
+        num_workers=2,
         pin_memory=True,
         drop_last=False,
     )
