@@ -3,7 +3,7 @@ import torch.optim as optim
 import lightning as L
 from dahuffman import HuffmanCodec
 
-from ..models import Nerv, PositionalEncoding
+from ..models import Nerv
 from .metrics import loss_fn, psnr_fn
 from .compress import quantize_weights
 
@@ -39,11 +39,10 @@ class LtNerv(L.LightningModule):
         self.loss_alpha = loss_alpha
         self.quant_bit, self.quant_axis = quant_bit, quant_axis
 
-        self.pe = PositionalEncoding(pe_embed=pe_embed)
         self.model = Nerv(
             stem_dim_num=stem_dim_num,
             fc_hw_dim=fc_hw_dim,
-            embed_length=self.pe.embed_length,
+            embed_length=pe_embed,
             stride_list=stride_list,
             expansion=expansion,
             reduction=reduction,
@@ -55,8 +54,7 @@ class LtNerv(L.LightningModule):
         )
     
     def forward(self, x):
-        embedding = self.pe(x)
-        return self.model(embedding)
+        return self.model(x)
 
     def configure_optimizers(self):
         optimizer = optim.Adam(
@@ -72,7 +70,7 @@ class LtNerv(L.LightningModule):
 
     def _calculate_loss(self, batch, mode="train"):
         frame_inds, frames = batch
-        pred_frames = self.model(self.pe(frame_inds))
+        pred_frames = self.model(frame_inds)
         frames = [F.adaptive_avg_pool2d(frames, x.shape[-2:]) for x in pred_frames]
         
         losses = [loss_fn(pred, target, alpha=self.loss_alpha) for pred, target in zip(pred_frames, frames)]

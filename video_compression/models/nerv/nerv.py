@@ -62,7 +62,7 @@ class Nerv(nn.Module):
         self,
         stem_dim_num,
         fc_hw_dim,
-        embed_length,
+        pe_embed,
         stride_list,
         expansion,
         reduction,
@@ -74,6 +74,9 @@ class Nerv(nn.Module):
     ):
         super().__init__()
         
+        self.pe = PositionalEncoding(pe_embed)
+        embed_length = self.pe.embed_length
+
         stem_dim, stem_num = [int(x) for x in stem_dim_num.split('_')]
         self.fc_h, self.fc_w, self.fc_dim = [int(x) for x in fc_hw_dim.split('_')]
         mlp_dim_list = [embed_length] + [stem_dim] * stem_num + [self.fc_h *self.fc_w *self.fc_dim]
@@ -105,6 +108,7 @@ class Nerv(nn.Module):
         self.sigmoid = sigmoid
     
     def forward(self, x: Tensor):
+        x = self.pe(x)
         x = self.stem(x)
         x = x.view(x.size(0), self.fc_dim, self.fc_h, self.fc_w)
 
