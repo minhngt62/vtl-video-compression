@@ -1,0 +1,25 @@
+betas: !!python/tuple
+- 0.5
+- 0.999
+bias: true
+expansion: 1
+fc_hw_dim: '9_16_26'
+loss_alpha: 0.7
+lower_width: 96
+lr0: 0.0005
+num_blocks: 1
+pe_embed: '1.25_40'
+quant_axis: 0
+quant_bit: 8
+reduction: 2
+sigmoid: true
+sin_res: true
+stem_dim_num: '512_1'
+stride_list:
+- 5
+- 2
+- 2
+- 2
+- 2
+warmup_epochs: 30
+weight_decay: 0
