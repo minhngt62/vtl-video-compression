@@ -53,7 +53,7 @@ def quantize_weights(model: nn.Module, quant_bit=8, quant_axis=0):
     for k,v in cur_ckt.items():
         large_tf = (v.dim() in {2,4} and 'bias' not in k)
         quant_v, new_v = quantize_per_tensor(v, quant_bit, quant_axis if large_tf else -1)
-        valid_quant_v = quant_v
+        valid_quant_v = quant_v[v!=0] # only include non-zero weights
         quant_weight_lst.append(valid_quant_v.flatten())
         cur_ckt[k] = new_v
     return cur_ckt, quant_weight_lst
