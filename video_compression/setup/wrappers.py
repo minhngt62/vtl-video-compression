@@ -37,7 +37,7 @@ class LtNerv(L.LightningModule):
         self.lr0, self.betas, self.weight_decay = lr0, betas, weight_decay
         self.warmup_epochs = warmup_epochs
         self.loss_alpha = loss_alpha
-        self.prune_ratio, self.quant_bit, self.quant_axis = prune_ratio, quant_bit, quant_axis
+        self.quant_bit, self.quant_axis = quant_bit, quant_axis
 
         self.model = Nerv(
             stem_dim_num=stem_dim_num,
