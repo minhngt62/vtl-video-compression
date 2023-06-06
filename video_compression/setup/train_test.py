@@ -52,7 +52,6 @@ def train(
                 use_global_unstructured=True
             )
         ],
-        log_every_n_steps=5,
         **trainer_params,
     )
     trainer.logger._log_graph = False  # if True, we plot the computation graph in tensorboard
