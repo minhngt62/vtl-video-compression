@@ -87,10 +87,11 @@ class LtNerv(L.LightningModule):
         loss, psnr = self._calculate_loss(batch)
         return {"loss": loss, "psnr": psnr}
 
-    def validation_step(self, batch, batch_idx):
+    def on_validation_epoch_start(self) -> None:
         quantized_ckt, _ = quantize_weights(self.model, self.quant_bit, self.quant_axis)
         self.model.load_state_dict(quantized_ckt)
 
+    def validation_step(self, batch, batch_idx):
         self._calculate_loss(batch, mode="val")
 
     def test_step(self, batch, batch_idx):
