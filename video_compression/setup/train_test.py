@@ -83,7 +83,7 @@ def test(
     trainer_params: Dict[str, Any] = dict(
         default_root_dir=os.path.join(PRJ_ROOT, "configs", "nerv"),
         max_epochs=1,
-        log_every_n_steps=5,
+        log_every_n_steps=1,
     ),
     loader_params: Dict[str, Any] = dict(
         batch_size=1,

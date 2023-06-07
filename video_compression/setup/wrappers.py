@@ -1,7 +1,7 @@
 import torch.nn.functional as F
 import torch.optim as optim
 import lightning as L
-from dahuffman import HuffmanCodec
+import time
 
 from ..models import Nerv
 from .metrics import loss_fn, psnr_fn, msssim_fn
@@ -68,21 +68,18 @@ class LtNerv(L.LightningModule):
         )
         return [optimizer], [lr_scheduler]
 
-    def _calculate_loss(self, batch, mode="train"):
+    def _infer(self, batch):
         frame_inds, frames = batch
         pred_frames = self.model(frame_inds)
         frames = [F.adaptive_avg_pool2d(frames, x.shape[-2:]) for x in pred_frames]
-        
+        return pred_frames, frames
+
+    def _calculate_loss(self, batch, mode="train"):
+        pred_frames, frames = self._infer(batch)
         losses = [loss_fn(pred, target, alpha=self.loss_alpha) for pred, target in zip(pred_frames, frames)]
         loss = sum(losses)
-
         psnr = psnr_fn(pred_frames, frames)
-        
         self.log_dict({"%s_loss" % mode: loss, "%s_psnr" % mode: psnr}, prog_bar=True)
-        
-        if mode == "test":
-            msssim = msssim_fn(pred_frames, frames)
-            self.log_dict({"%s_msssim" % mode: msssim}, prog_bar=True)
         return loss, psnr
 
     def _quantize_weights(self):
@@ -103,5 +100,11 @@ class LtNerv(L.LightningModule):
         self._calculate_loss(batch, mode="val")
 
     def test_step(self, batch, batch_idx):
-        self._calculate_loss(batch, mode="test")
+        anchor = time.time()
+        pred_frames, frames = self._infer(batch)
+        fps = time.time() - anchor
+
+        psnr = psnr_fn(pred_frames, frames)
+        msssim = msssim_fn(pred_frames, frames)
+        self.log_dict({"test_loss": msssim, "test_psnr": psnr, "test_fps": fps}, prog_bar=True)
 
