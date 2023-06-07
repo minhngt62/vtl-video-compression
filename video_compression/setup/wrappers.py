@@ -2,6 +2,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import lightning as L
 import time
+import torch
 
 from ..models import Nerv
 from .metrics import loss_fn, psnr_fn, msssim_fn
@@ -99,10 +100,10 @@ class LtNerv(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         self._calculate_loss(batch, mode="val")
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: torch.Tensor, batch_idx):
         anchor = time.time()
         pred_frames, frames = self._infer(batch)
-        fps = 1 / (time.time() - anchor)
+        fps = 1 / ((time.time() - anchor) / batch.size(0))
 
         psnr = psnr_fn(pred_frames, frames)
         msssim = msssim_fn(pred_frames, frames)
