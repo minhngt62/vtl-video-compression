@@ -106,5 +106,5 @@ class LtNerv(L.LightningModule):
 
         psnr = psnr_fn(pred_frames, frames)
         msssim = msssim_fn(pred_frames, frames)
-        self.log_dict({"test_loss": msssim, "test_psnr": psnr, "test_fps": fps}, prog_bar=True)
+        self.log_dict({"test_msssim": msssim, "test_psnr": psnr, "test_fps": fps}, prog_bar=True)
 
