@@ -67,7 +67,7 @@ def train(
 
     # build data loaders
     train_loader = data.DataLoader(dataset, shuffle=True, **loader_params)
-    val_loader = data.DataLoader(dataset, shuffle=True, **loader_params)
+    val_loader = data.DataLoader(dataset, shuffle=False, **loader_params)
 
     # train the model
     L.seed_everything(42)
