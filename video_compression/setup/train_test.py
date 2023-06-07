@@ -24,7 +24,6 @@ def train(
     ),
     loader_params: Dict[str, Any] = dict(
         batch_size=1,
-        shuffle=False,
         num_workers=2,
         pin_memory=True,
         drop_last=False,
@@ -67,8 +66,8 @@ def train(
     trainer.logger._default_hp_metric = None  # optional logging argument that we don't need
 
     # build data loaders
-    train_loader = data.DataLoader(dataset, **loader_params)
-    val_loader = data.DataLoader(dataset, **loader_params)
+    train_loader = data.DataLoader(dataset, shuffle=True, **loader_params)
+    val_loader = data.DataLoader(dataset, shuffle=True, **loader_params)
 
     # train the model
     L.seed_everything(42)
