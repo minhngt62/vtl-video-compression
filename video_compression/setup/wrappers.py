@@ -102,7 +102,7 @@ class LtNerv(L.LightningModule):
     def test_step(self, batch, batch_idx):
         anchor = time.time()
         pred_frames, frames = self._infer(batch)
-        fps = time.time() - anchor
+        fps = 1 / (time.time() - anchor)
 
         psnr = psnr_fn(pred_frames, frames)
         msssim = msssim_fn(pred_frames, frames)
