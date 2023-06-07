@@ -98,4 +98,3 @@ dependencies:
     - websockets==11.0.3
     - yarl==1.9.2
     - zipp==3.15.0
-prefix: D:\CORE\anaconda3\envs\cv
